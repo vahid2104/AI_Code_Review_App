@@ -1,4 +1,6 @@
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : "http://localhost:5000/api";
 
 export const apiRequest = async <T>(
   endpoint: string,
@@ -6,9 +8,9 @@ export const apiRequest = async <T>(
 ): Promise<T> => {
   const token = localStorage.getItem("token");
 
-  // Use the Headers class to avoid type issues with HeadersInit union types
   const headers = new Headers(options.headers as HeadersInit);
   headers.set("Content-Type", "application/json");
+
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
