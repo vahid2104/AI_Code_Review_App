@@ -52,19 +52,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          <button
-            type="button"
-            className="w-full bg-white text-slate-900 rounded-lg py-3 font-medium mb-6"
-          >
-            Continue with Google
-          </button>
-
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-px flex-1 bg-slate-800" />
-            <span className="text-sm text-slate-500">Or continue with email</span>
-            <div className="h-px flex-1 bg-slate-800" />
-          </div>
-
           <div className="mb-5">
             <label className="block text-sm font-medium mb-2">
               Email Address
