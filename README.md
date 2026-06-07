@@ -8,21 +8,14 @@ A full-stack AI-powered code review application that helps developers analyze co
 
 ## 🚀 Live Demo
 
-**Demo Link:** `ADD_YOUR_LIVE_DEMO_LINK_HERE`
+**Demo Link:** `https://ai-code-review-app-sigma.vercel.app/`
 
-**GitHub Repository:** `ADD_YOUR_GITHUB_REPOSITORY_LINK_HERE`
+**GitHub Repository:** `https://github.com/vahid2104/AI_Code_Review_App`
 
 ---
 
 ## 📸 Screenshots
 
-Add your screenshots inside a folder such as:
-
-```txt
-frontend/public/screenshots/
-```
-
-Then replace the placeholders below with your real image paths.
 
 ### Landing Page
 
