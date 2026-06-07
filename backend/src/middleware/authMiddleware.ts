@@ -14,6 +14,7 @@ declare global {
         name: string;
         email: string;
         role: string;
+        codeStoragePreference: string;
       };
     }
   }
@@ -22,7 +23,7 @@ declare global {
 export const protect = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     let token: string | undefined;
@@ -61,6 +62,7 @@ export const protect = async (
       name: user.name,
       email: user.email,
       role: user.role,
+      codeStoragePreference: user.codeStoragePreference,
     };
 
     next();

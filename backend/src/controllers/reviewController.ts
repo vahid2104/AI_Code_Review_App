@@ -42,7 +42,7 @@ export const analyzeReview = async (req: Request, res: Response) => {
       userId: req.user.id,
       fileName: fileName || "untitled-code",
       language,
-      codeSnippet: code,
+      codeSnippet: req.user.codeStoragePreference === "full" ? code : "",
       score: aiResult.score,
       issues: aiResult.issues,
       summary: shouldUseMock

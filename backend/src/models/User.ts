@@ -6,6 +6,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: "developer" | "student" | "admin";
+  codeStoragePreference: "none" | "summary" | "full";
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -33,10 +34,15 @@ const userSchema = new Schema<IUser>(
       enum: ["developer", "student", "admin"],
       default: "developer",
     },
+    codeStoragePreference: {
+      type: String,
+      enum: ["none", "summary", "full"],
+      default: "summary",
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 userSchema.pre("save", async function () {
@@ -49,7 +55,7 @@ userSchema.pre("save", async function () {
 });
 
 userSchema.methods.comparePassword = async function (
-  candidatePassword: string
+  candidatePassword: string,
 ): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };

@@ -54,6 +54,7 @@ export const registerUser = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        codeStoragePreference: user.codeStoragePreference,
       },
     });
   } catch (error) {
@@ -100,6 +101,7 @@ export const loginUser = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        codeStoragePreference: user.codeStoragePreference,
       },
     });
   } catch (error) {
@@ -118,6 +120,59 @@ export const getMe = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       message: "Server error while fetching user",
+      error,
+    });
+  }
+};
+
+export const updateUserSettings = async (req: Request, res: Response) => {
+  try {
+    const { codeStoragePreference } = req.body;
+
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Not authorized",
+      });
+    }
+
+    if (
+      codeStoragePreference &&
+      !["none", "summary", "full"].includes(codeStoragePreference)
+    ) {
+      return res.status(400).json({
+        message: "Invalid code storage preference",
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        codeStoragePreference,
+      },
+      {
+        new: true,
+      }
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Settings updated successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        codeStoragePreference: user.codeStoragePreference,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error while updating settings",
       error,
     });
   }

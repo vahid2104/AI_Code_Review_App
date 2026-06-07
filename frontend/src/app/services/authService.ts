@@ -5,6 +5,7 @@ export interface AuthUser {
   name: string;
   email: string;
   role: string;
+  codeStoragePreference: "none" | "summary" | "full";
 }
 
 export interface AuthResponse {
@@ -50,4 +51,17 @@ export const getMe = async (): Promise<MeResponse> => {
 
 export const logout = (): void => {
   localStorage.removeItem("token");
+};
+
+export interface UpdateSettingsData {
+  codeStoragePreference: "none" | "summary" | "full";
+}
+
+export const updateSettings = async (
+  data: UpdateSettingsData
+): Promise<MeResponse> => {
+  return apiRequest<MeResponse>("/auth/settings", {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
 };

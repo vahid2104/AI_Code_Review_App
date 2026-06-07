@@ -11,6 +11,7 @@ import {
   login as loginService,
   logout as logoutService,
   register as registerService,
+  updateSettings,
   type AuthUser,
   type LoginData,
   type RegisterData,
@@ -23,6 +24,9 @@ interface AuthContextType {
   login: (data: LoginData) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
+  updateUserSettings: (data: {
+  codeStoragePreference: "none" | "summary" | "full";
+}) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -79,6 +83,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUser(null);
   };
 
+  const updateUserSettings = async (data: {
+  codeStoragePreference: "none" | "summary" | "full";
+}) => {
+  const response = await updateSettings(data);
+  setUser(response.user);
+};
+
   return (
     <AuthContext.Provider
       value={{
@@ -88,6 +99,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         login,
         register,
         logout,
+        updateUserSettings,
       }}
     >
       {children}
