@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Code, Upload, Trash2, Sparkles, Loader2 } from "lucide-react";
+import { analyzeCode } from "../services/reviewService";
 
 const languages = [
   "JavaScript",
@@ -34,30 +35,65 @@ export function NewReviewPage() {
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("JavaScript");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!code.trim()) return;
 
     setIsAnalyzing(true);
-    setTimeout(() => {
+    setError("");
+
+    try {
+      const response = await analyzeCode({
+        fileName: "untitled-code",
+        language,
+        code,
+      });
+
+      navigate(`/app/review/${response.review._id}`);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Something went wrong while analyzing code.";
+
+      setError(message);
+      console.error("Analyze code error:", error);
+    } finally {
       setIsAnalyzing(false);
-      navigate("/app/review/1");
-    }, 2000);
+    }
   };
 
   const handleLoadSample = () => {
     setCode(sampleCode);
+    setError("");
+  };
+
+  const handleClearCode = () => {
+    setCode("");
+    setError("");
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white light:text-slate-900">New Code Review</h1>
-          <p className="text-slate-400 light:text-slate-600 mt-1">Paste your code and get instant AI-powered feedback</p>
+          <h1 className="text-3xl font-bold text-white light:text-slate-900">
+            New Code Review
+          </h1>
+          <p className="text-slate-400 light:text-slate-600 mt-1">
+            Paste your code and get instant AI-powered feedback
+          </p>
         </div>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
@@ -65,8 +101,11 @@ export function NewReviewPage() {
             <div className="p-4 border-b border-slate-800/50 light:border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Code className="w-5 h-5 text-purple-400" />
-                <h2 className="text-lg font-semibold text-white light:text-slate-900">Code Editor</h2>
+                <h2 className="text-lg font-semibold text-white light:text-slate-900">
+                  Code Editor
+                </h2>
               </div>
+
               <div className="flex items-center gap-2">
                 <select
                   value={language}
@@ -79,16 +118,20 @@ export function NewReviewPage() {
                     </option>
                   ))}
                 </select>
+
                 <button
-                  onClick={() => setCode("")}
+                  onClick={handleClearCode}
                   className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
                   title="Clear"
+                  type="button"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
+
                 <button
                   className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
                   title="Upload File"
+                  type="button"
                 >
                   <Upload className="w-4 h-4" />
                 </button>
@@ -98,11 +141,15 @@ export function NewReviewPage() {
             <div className="relative">
               <textarea
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => {
+                  setCode(e.target.value);
+                  setError("");
+                }}
                 placeholder="Paste your code here..."
                 className="w-full h-[600px] p-6 bg-slate-950/50 light:bg-slate-50 text-white light:text-slate-900 font-mono text-sm focus:outline-none resize-none placeholder:text-slate-500 light:placeholder:text-slate-400"
                 style={{ lineHeight: "1.6" }}
               />
+
               {!code && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="text-center">
@@ -111,6 +158,7 @@ export function NewReviewPage() {
                     <button
                       onClick={handleLoadSample}
                       className="text-sm text-purple-400 hover:text-purple-300 pointer-events-auto"
+                      type="button"
                     >
                       Load sample code
                     </button>
@@ -123,10 +171,12 @@ export function NewReviewPage() {
               <div className="text-sm text-slate-400 light:text-slate-600">
                 {code.split("\n").length} lines • {code.length} characters
               </div>
+
               <button
                 onClick={handleAnalyze}
                 disabled={!code.trim() || isAnalyzing}
                 className="px-6 py-2.5 bg-gradient-to-r from-purple-500 to-cyan-500 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                type="button"
               >
                 {isAnalyzing ? (
                   <>
@@ -148,20 +198,30 @@ export function NewReviewPage() {
           <div className="rounded-xl bg-slate-900/50 light:bg-white backdrop-blur border border-slate-800/50 light:border-slate-200 p-6">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-5 h-5 text-cyan-400" />
-              <h3 className="text-lg font-semibold text-white light:text-slate-900">AI Feedback</h3>
+              <h3 className="text-lg font-semibold text-white light:text-slate-900">
+                AI Feedback
+              </h3>
             </div>
 
             {isAnalyzing ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
-                  <span className="text-sm text-slate-300 light:text-slate-700">Analyzing your code...</span>
+                  <span className="text-sm text-slate-300 light:text-slate-700">
+                    Analyzing your code...
+                  </span>
                 </div>
+
                 <div className="space-y-2">
                   <div className="h-2 bg-slate-800 light:bg-slate-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-purple-500 to-cyan-500 animate-pulse" style={{ width: "60%" }}></div>
+                    <div
+                      className="h-full bg-gradient-to-r from-purple-500 to-cyan-500 animate-pulse"
+                      style={{ width: "60%" }}
+                    />
                   </div>
-                  <p className="text-xs text-slate-500 light:text-slate-600">Checking for bugs and security issues</p>
+                  <p className="text-xs text-slate-500 light:text-slate-600">
+                    Checking for bugs and security issues
+                  </p>
                 </div>
               </div>
             ) : code ? (
@@ -169,21 +229,30 @@ export function NewReviewPage() {
                 <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-3">
                   <Sparkles className="w-8 h-8 text-purple-400" />
                 </div>
-                <p className="text-slate-400 light:text-slate-600 text-sm mb-4">Ready to analyze your code</p>
-                <p className="text-xs text-slate-500 light:text-slate-600">Click "Analyze Code" to get AI feedback</p>
+                <p className="text-slate-400 light:text-slate-600 text-sm mb-4">
+                  Ready to analyze your code
+                </p>
+                <p className="text-xs text-slate-500 light:text-slate-600">
+                  Click "Analyze Code" to get AI feedback
+                </p>
               </div>
             ) : (
               <div className="text-center py-8">
                 <div className="w-16 h-16 rounded-full bg-slate-800 light:bg-slate-200 flex items-center justify-center mx-auto mb-3">
                   <Code className="w-8 h-8 text-slate-600 light:text-slate-400" />
                 </div>
-                <p className="text-slate-500 light:text-slate-600 text-sm">Paste code to begin</p>
+                <p className="text-slate-500 light:text-slate-600 text-sm">
+                  Paste code to begin
+                </p>
               </div>
             )}
           </div>
 
           <div className="rounded-xl bg-gradient-to-br from-purple-500/10 to-cyan-500/10 border border-purple-500/20 backdrop-blur p-6">
-            <h3 className="text-sm font-semibold text-white light:text-slate-900 mb-3">What we check for:</h3>
+            <h3 className="text-sm font-semibold text-white light:text-slate-900 mb-3">
+              What we check for:
+            </h3>
+
             <ul className="space-y-2 text-sm text-slate-300 light:text-slate-700">
               <li className="flex items-start gap-2">
                 <span className="text-purple-400 mt-0.5">•</span>
