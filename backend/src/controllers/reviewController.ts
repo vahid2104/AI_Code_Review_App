@@ -24,9 +24,18 @@ export const analyzeReview = async (req: Request, res: Response) => {
       });
     }
 
+    const openAIReviewLimit = Number(process.env.OPENAI_REVIEW_LIMIT || 10);
+
+    const userReviewCount = await Review.countDocuments({
+      userId: req.user.id,
+    });
+
+    const shouldUseMock = userReviewCount >= openAIReviewLimit;
+
     const aiResult = await analyzeCodeWithAI({
       code,
       language,
+      forceMock: shouldUseMock,
     });
 
     const review = await Review.create({
@@ -36,11 +45,20 @@ export const analyzeReview = async (req: Request, res: Response) => {
       codeSnippet: code,
       score: aiResult.score,
       issues: aiResult.issues,
-      summary: aiResult.summary,
+      summary: shouldUseMock
+        ? `${aiResult.summary} OpenAI usage limit reached, so mock analysis was used.`
+        : aiResult.summary,
     });
 
     return res.status(201).json({
-      message: "Code analyzed successfully",
+      message: shouldUseMock
+        ? "Code analyzed successfully using mock analysis because OpenAI limit was reached"
+        : "Code analyzed successfully",
+      analysisMode: shouldUseMock ? "mock" : "openai",
+      remainingOpenAIReviews: Math.max(
+        0,
+        openAIReviewLimit - userReviewCount - 1
+      ),
       review,
     });
   } catch (error) {
