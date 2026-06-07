@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { Code, Upload, Trash2, Sparkles, Loader2 } from "lucide-react";
 
 const languages = [

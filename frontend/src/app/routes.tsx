@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import { LandingPage } from "./pages/LandingPage";
 import { DashboardLayout } from "./components/DashboardLayout";
 import { DashboardPage } from "./pages/DashboardPage";
@@ -7,8 +7,8 @@ import { FeedbackResultPage } from "./pages/FeedbackResultPage";
 import { ReviewHistoryPage } from "./pages/ReviewHistoryPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { UpgradePage } from "./pages/UpgradePage";
-import { LoginPage } from "./pages/LoginPage";
-import { RegisterPage } from "./pages/RegisterPage";
+import  LoginPage  from "./pages/LoginPage";
+import  RegisterPage  from "./pages/RegisterPage";
 import { DocumentationPage } from "./pages/DocumentationPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { TermsPage } from "./pages/TermsPage";
